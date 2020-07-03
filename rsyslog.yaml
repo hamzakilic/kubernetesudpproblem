@@ -1,0 +1,73 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rsyslog-deployment
+  namespace: dnssense
+  labels:
+    app: rsyslog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rsyslog
+  template:
+    metadata:
+      labels:
+        app: rsyslog
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mysyslog
+        image: registry.sea.net/test/mysyslog:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 514
+        volumeMounts:
+          - mountPath: /var/log
+            name: varlog
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /data/rsyslog
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rsyslog
+  namespace: dnssense
+  labels:
+    k8s-app: rsyslog
+spec:
+  ports:
+  - port: 514
+    name: syslog
+    protocol: UDP
+    targetPort: 514
+  selector:
+    app: rsyslog
+
+---
+#development icin test yapabilmek amaciyla
+apiVersion: v1
+kind: Service
+metadata:
+  name: rsyslog-dev
+  namespace: dnssense
+  labels:
+    run: rsyslog-dev
+spec:
+  type: NodePort
+  externalTrafficPolicy: Local
+  ports:
+  - name: syslog
+    port: 514    
+    targetPort: 514
+    nodePort: 30515
+    protocol: UDP
+  selector:
+    app: rsyslog
+
+
