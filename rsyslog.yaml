@@ -19,7 +19,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: mysyslog
-        image: registry.sea.net/test/mysyslog:latest
+        image: mysyslog:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 514
@@ -60,7 +60,6 @@ metadata:
     run: rsyslog-dev
 spec:
   type: NodePort
-  externalTrafficPolicy: Local
   ports:
   - name: syslog
     port: 514    
